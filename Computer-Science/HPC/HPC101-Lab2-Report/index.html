@@ -1,0 +1,425 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>HPC101 Lab2 Report | Calc - rzmID 的博客</title><meta name="author" content="rzm"><meta name="copyright" content="rzm"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="向量化计算与 Numpy 使用基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HPC101 Lab2 Report">
+<meta property="og:url" content="https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-Report/index.html">
+<meta property="og:site_name" content="Calc - rzmID 的博客">
+<meta property="og:description" content="向量化计算与 Numpy 使用基础">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzm0572.github.io/assets/basic/home-bg.jpg">
+<meta property="article:published_time" content="2024-01-20T11:07:03.000Z">
+<meta property="article:modified_time" content="2024-01-20T11:44:32.265Z">
+<meta property="article:author" content="rzm">
+<meta property="article:tag" content="HPC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rzm0572.github.io/assets/basic/home-bg.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-Report/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HPC101 Lab2 Report',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-01-20 19:44:32'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于本站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/assets/basic/home-bg.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Calc - rzmID 的博客"><span class="site-name">Calc - rzmID 的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于本站</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HPC101 Lab2 Report</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-01-20T11:07:03.000Z" title="发表于 2024-01-20 19:07:03">2024-01-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-01-20T11:44:32.265Z" title="更新于 2024-01-20 19:44:32">2024-01-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Computer-Science/">Computer Science</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Computer-Science/HPC/">HPC</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HPC101 Lab2 Report"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/Computer-Science/HPC/HPC101-Lab2-Report/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/Computer-Science/HPC/HPC101-Lab2-Report/" itemprop="commentCount"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="HPC101-Lab2-report"><a href="#HPC101-Lab2-report" class="headerlink" title="HPC101 Lab2 report"></a>HPC101 Lab2 report</h1><h2 id="实验目标"><a href="#实验目标" class="headerlink" title="实验目标"></a>实验目标</h2><p>借助 Numpy 实现一个支持批量处理的向量化的双线性插值</p>
+<h2 id="实现代码"><a href="#实现代码" class="headerlink" title="实现代码"></a>实现代码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">bilinear_interp_vectorized</span>(<span class="params">a: np.ndarray, b: np.ndarray</span>) -&gt; np.ndarray:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    This is the vectorized implementation of bilinear interpolation.</span></span><br><span class="line"><span class="string">    - a is a ND array with shape [N, H1, W1, C], dtype = int64</span></span><br><span class="line"><span class="string">    - b is a ND array with shape [N, H2, W2, 2], dtype = float64</span></span><br><span class="line"><span class="string">    - return a ND array with shape [N, H2, W2, C], dtype = int64</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    N, H1, W1, C=a.shape</span><br><span class="line">    N1,H2, W2, _=b.shape</span><br><span class="line">    <span class="keyword">assert</span> N == N1</span><br><span class="line"></span><br><span class="line">    res=np.empty((N,H2,W2,C),dtype=np.int64)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获得左上方与右下方最近的整点坐标</span></span><br><span class="line">    pos1=np.floor(b).astype(np.int64)</span><br><span class="line">    pos2=np.ceil(b).astype(np.int64)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取与整点的水平距离与竖直距离</span></span><br><span class="line">    delta1=b-pos1</span><br><span class="line">    delta2=pos2-b</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取左边的行向量与右边的列向量</span></span><br><span class="line">    Dx=np.concatenate((delta2[...,np.newaxis,<span class="number">0</span>],delta1[...,np.newaxis,<span class="number">0</span>]),axis=<span class="number">3</span>)</span><br><span class="line">    Dx=Dx[...,np.newaxis,:,np.newaxis]</span><br><span class="line">    Dy=np.concatenate((delta2[...,np.newaxis,<span class="number">1</span>],delta1[...,np.newaxis,<span class="number">1</span>]),axis=<span class="number">3</span>)</span><br><span class="line">    Dy=Dy[...,np.newaxis,np.newaxis,:]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取中间的 2*2 矩阵</span></span><br><span class="line">    index_n=np.arange(N).repeat(H2*W2,axis=<span class="number">0</span>)</span><br><span class="line">    index_x1=pos1[...,<span class="number">0</span>].flatten()</span><br><span class="line">    index_y1=pos1[...,<span class="number">1</span>].flatten()</span><br><span class="line">    index_x2=pos2[...,<span class="number">0</span>].flatten()</span><br><span class="line">    index_y2=pos2[...,<span class="number">1</span>].flatten()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 通过 fancy index 取得周围 4 个点对应的值</span></span><br><span class="line">    val_11=a[index_n,index_x1,index_y1,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line">    val_12=a[index_n,index_x1,index_y2,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line">    val_21=a[index_n,index_x2,index_y1,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line">    val_22=a[index_n,index_x2,index_y2,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将获得的值合并为对应的 2*2 矩阵</span></span><br><span class="line">    val_1=np.concatenate((val_11[...,np.newaxis],val_21[...,np.newaxis]),axis=<span class="number">4</span>)</span><br><span class="line">    val_2=np.concatenate((val_12[...,np.newaxis],val_22[...,np.newaxis]),axis=<span class="number">4</span>)</span><br><span class="line">    val=np.concatenate((val_1[...,np.newaxis,:],val_2[...,np.newaxis,:]),axis=<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 执行矩阵乘法</span></span><br><span class="line">    res=Dy@val@Dx</span><br><span class="line">    <span class="comment"># 调整矩阵形状与数据类型</span></span><br><span class="line">    res=res.reshape(N,H2,W2,C).astype(np.int64)</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><script type="math/tex; mode=display">
+{f(x,y) \approx {\frac {1}{(x_{2}-x_{1})(y_{2}-y_{1})}}{\begin{bmatrix}x_{2}-x&x-x_{1}\end{bmatrix}}{\begin{bmatrix}f(Q_{11})&f(Q_{12})\\
+f(Q_{21})&f(Q_{22})\end{bmatrix}}{\begin{bmatrix}y_{2}-y\\ y-y_{1}\end{bmatrix}}.}</script><p>在该线性插值公式中，由于我们取的基准点是整点，并且是包含插值点的最小正方形的四个顶点，可知  $x2-x1=1$ ，$y2-y1=1$ ，因而公式的第一项恒为 1，故我们只需要求出后面三个矩阵乘积的大小。</p>
+<p>这个函数要返回的数据是四维数组 $res[N][H2][W2][C]$ ，对于每个不同的 $(n,h2,w2,c)$ ， <script type="math/tex">\begin{bmatrix}f(Q_{11})&f(Q_{12})\\f(Q_{21})&f(Q_{22})\end{bmatrix}</script> 维数为 2 且不一定相同，需要用六维的数组存储。而虽然 <script type="math/tex">\begin{bmatrix}x_{2}-x&x-x_{1}\end{bmatrix}</script> 与 <script type="math/tex">\begin{bmatrix}y_{2}-y\\ y-y_{1}\end{bmatrix}</script> 维数都是1，并且与通道序号 $C$ 无关，可以用四维数组存储，但我们为了保证最后的矩阵乘法可以运行，需要保证存储三个矩阵的数组的维数相同，因此决定统一用六维的数组存储这些矩阵。</p>
+<p>首先我们应该求出插值点 $(x,y)$ 附近整点的坐标，易知这四个点的坐标分别为 $(\lfloor x \rfloor,\lfloor y\rfloor),(\lfloor x\rfloor,\lceil y\rceil),(\lceil x\rceil,\lfloor x\rfloor),(\lceil x\rceil,\lceil y\rceil)$ ，所以我们可以通过 numpy 的 floor 与 ceil 函数对 b 中数据批量处理得到 $pos1[N][H2][W2][2]$ （存有 $x_1$ 与 $y_1$）和 $pos2[N][H2][W2][2]$ （存有 $x_2$ 与 $y_2$）。然后作差得 $delta1=b-pos1,delta2=pos2-b$ ，再合并成分别存储有行向量与列向量的六维矩阵 $Dx$ 与 $Dy$ 。</p>
+<p>接着我们需要求中间的系数矩阵，矩阵中的数值来源于 $a[N][H1][W1][C]$ ，为了与行向量和列向量一一对应，我们需要建立索引数组来把其中的数据按照与 $Dx$ ，$Dy$ 相同的数据顺序取出来。对于每层图像，有 $H2 \cdot W2$ 个插值点，所以构建 <code>index_n=np.arange(N).repeat(H2*W2,axis=0)</code>，而每层的基准点坐标则直接从 $pos1$ 与 $pos2$ 的切片中取得，将数据合并，构建六维数组。</p>
+<p>最后执行矩阵乘法，并调整矩阵形状与数据类型，返回结果。</p>
+<h2 id="测试：正确性与加速比"><a href="#测试：正确性与加速比" class="headerlink" title="测试：正确性与加速比"></a>测试：正确性与加速比</h2><p><img src="image-20231027225424915.png" alt="image-20231027225424915"></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>测试编号</th>
+<th>正确性</th>
+<th>基准代码运行时间/s</th>
+<th>向量化代码运行时间/s</th>
+<th>加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Y</td>
+<td>147.7335</td>
+<td>5.6584</td>
+<td>26.1085</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Y</td>
+<td>146.1727</td>
+<td>5.5062</td>
+<td>26.5470</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Y</td>
+<td>145.4642</td>
+<td>5.8223</td>
+<td>24.9838</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Y</td>
+<td>152.4930</td>
+<td>5.6819</td>
+<td>26.8386</td>
+</tr>
+<tr>
+<td>avg</td>
+<td>100%</td>
+<td>/</td>
+<td>/</td>
+<td>26.1195</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h2><p>使用 time 测试一下每个部分所用的时间，结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">bilinear_interp_vectorized</span>(<span class="params">a: np.ndarray, b: np.ndarray</span>) -&gt; np.ndarray:</span><br><span class="line">    N, H1, W1, C=a.shape</span><br><span class="line">    H2=b.shape[<span class="number">1</span>]</span><br><span class="line">    W2=b.shape[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">    t=[]</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 0</span></span><br><span class="line">    res=np.empty((N,H2,W2,C),dtype=np.int64)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 1</span></span><br><span class="line">    pos1=np.floor(b).astype(np.int64)</span><br><span class="line">    pos2=np.ceil(b).astype(np.int64)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 2</span></span><br><span class="line">    delta1=b-pos1</span><br><span class="line">    delta2=pos2-b</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 3</span></span><br><span class="line">    Dx=np.concatenate((delta2[...,np.newaxis,<span class="number">0</span>],delta1[...,np.newaxis,<span class="number">0</span>]),axis=<span class="number">3</span>)</span><br><span class="line">    Dx=Dx[...,np.newaxis,:,np.newaxis]</span><br><span class="line">    Dy=np.concatenate((delta2[...,np.newaxis,<span class="number">1</span>],delta1[...,np.newaxis,<span class="number">1</span>]),axis=<span class="number">3</span>)</span><br><span class="line">    Dy=Dy[...,np.newaxis,np.newaxis,:]</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 4</span></span><br><span class="line">    index_n=np.arange(N).repeat(H2*W2,axis=<span class="number">0</span>)</span><br><span class="line">    index_x1=pos1[...,<span class="number">0</span>].flatten()</span><br><span class="line">    index_y1=pos1[...,<span class="number">1</span>].flatten()</span><br><span class="line">    index_x2=pos2[...,<span class="number">0</span>].flatten()</span><br><span class="line">    index_y2=pos2[...,<span class="number">1</span>].flatten()</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 5</span></span><br><span class="line">    val_11=a[index_n,index_x1,index_y1,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line">    val_12=a[index_n,index_x1,index_y2,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line">    val_21=a[index_n,index_x2,index_y1,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line">    val_22=a[index_n,index_x2,index_y2,:].reshape(N,H2,W2,-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 6</span></span><br><span class="line">    val_1=np.concatenate((val_11[...,np.newaxis],val_21[...,np.newaxis]),axis=<span class="number">4</span>)</span><br><span class="line">    val_2=np.concatenate((val_12[...,np.newaxis],val_22[...,np.newaxis]),axis=<span class="number">4</span>)</span><br><span class="line">    val=np.concatenate((val_1[...,np.newaxis,:],val_2[...,np.newaxis,:]),axis=<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 7</span></span><br><span class="line">    res=Dy@val@Dx</span><br><span class="line">    t.append(time.time()) <span class="comment"># 8</span></span><br><span class="line">    res=res.reshape(N,H2,W2,C).astype(np.int64)</span><br><span class="line">    t.append(time.time())</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;%d: %.6fs&quot;</span>%(i, t[i+<span class="number">1</span>]-t[i]))</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res</span><br></pre></td></tr></table></figure>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>test 1</th>
+<th>test 2</th>
+<th>test 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0.000000s</td>
+<td>0.000000s</td>
+<td>0.000000s</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0.169998s</td>
+<td>0.175999s</td>
+<td>0.180998s</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0.065002s</td>
+<td>0.066999s</td>
+<td>0.066001s</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0.076056s</td>
+<td>0.078063s</td>
+<td>0.076253s</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0.084945s</td>
+<td>0.083939s</td>
+<td>0.085745s</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1.203999s</td>
+<td>1.212999s</td>
+<td>1.389002s</td>
+</tr>
+<tr>
+<td>6</td>
+<td>0.428073s</td>
+<td>0.423998s</td>
+<td>0.436043s</td>
+</tr>
+<tr>
+<td>7</td>
+<td>3.228925s</td>
+<td>3.353000s</td>
+<td>3.326474s</td>
+</tr>
+<tr>
+<td>8</td>
+<td>0.074074s</td>
+<td>0.068001s</td>
+<td>0.065000s</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>显然，第5步的 fancy index 和第7步的矩阵乘法耗时最长</p>
+<p>想法：可以尝试减少数组维数，把前几维数据在执行矩阵乘法前横向展开，减少执行矩阵乘法时数据的深度，也许能加快矩阵乘法的速度</p>
+<p>重新编写代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">bilinear_interp_vectorized</span>(<span class="params">a: np.ndarray, b: np.ndarray</span>) -&gt; np.ndarray:</span><br><span class="line">    N, H1, W1, C=a.shape</span><br><span class="line">    H2=b.shape[<span class="number">1</span>]</span><br><span class="line">    W2=b.shape[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">    t=[]</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 0</span></span><br><span class="line">    res=np.empty((N,H2,W2,C),dtype=np.int64)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 1</span></span><br><span class="line">    b1=b.reshape(-<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">    pos1=np.floor(b1).astype(np.int64)</span><br><span class="line">    pos2=np.ceil(b1).astype(np.int64)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 2</span></span><br><span class="line">    delta1=b1-pos1</span><br><span class="line">    delta2=pos2-b1</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 3</span></span><br><span class="line">    Dx=np.concatenate((delta2[...,np.newaxis,<span class="number">0</span>],delta1[...,np.newaxis,<span class="number">0</span>]),axis=<span class="number">1</span>)</span><br><span class="line">    Dx=Dx[...,np.newaxis,:,np.newaxis]</span><br><span class="line">    Dy=np.concatenate((delta2[...,np.newaxis,<span class="number">1</span>],delta1[...,np.newaxis,<span class="number">1</span>]),axis=<span class="number">1</span>)</span><br><span class="line">    Dy=Dy[...,np.newaxis,np.newaxis,:]</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 4</span></span><br><span class="line">    index_n=np.arange(N).repeat(H2*W2,axis=<span class="number">0</span>)</span><br><span class="line">    index_x1=pos1[...,<span class="number">0</span>].flatten()</span><br><span class="line">    index_y1=pos1[...,<span class="number">1</span>].flatten()</span><br><span class="line">    index_x2=pos2[...,<span class="number">0</span>].flatten()</span><br><span class="line">    index_y2=pos2[...,<span class="number">1</span>].flatten()</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 5</span></span><br><span class="line">    val_11=a[index_n,index_x1,index_y1,:].reshape(-<span class="number">1</span>,C)</span><br><span class="line">    val_12=a[index_n,index_x1,index_y2,:].reshape(-<span class="number">1</span>,C)</span><br><span class="line">    val_21=a[index_n,index_x2,index_y1,:].reshape(-<span class="number">1</span>,C)</span><br><span class="line">    val_22=a[index_n,index_x2,index_y2,:].reshape(-<span class="number">1</span>,C)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 6</span></span><br><span class="line">    val_1=np.concatenate((val_11[...,np.newaxis],val_21[...,np.newaxis]),axis=<span class="number">2</span>)</span><br><span class="line">    val_2=np.concatenate((val_12[...,np.newaxis],val_22[...,np.newaxis]),axis=<span class="number">2</span>)</span><br><span class="line">    val=np.concatenate((val_1[...,np.newaxis,:],val_2[...,np.newaxis,:]),axis=<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    t.append(time.time()) <span class="comment"># 7</span></span><br><span class="line">    res=Dy@val@Dx</span><br><span class="line">    t.append(time.time()) <span class="comment"># 8</span></span><br><span class="line">    res=res.reshape(N,H2,W2,C).astype(np.int64)</span><br><span class="line">    t.append(time.time())</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">9</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;%d: %.6fs&quot;</span>%(i, t[i+<span class="number">1</span>]-t[i]))</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res</span><br></pre></td></tr></table></figure>
+<p>修改 main.py ，与原来的版本进行对比：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>未压缩版本耗时</th>
+<th>压缩版本耗时</th>
+<th>整体加速比</th>
+<th>矩阵乘法加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>6.1774s</td>
+<td>6.0661s</td>
+<td>1.018</td>
+<td>1.015</td>
+</tr>
+<tr>
+<td>2</td>
+<td>5.7063s</td>
+<td>5.6795s</td>
+<td>1.005</td>
+<td>0.997</td>
+</tr>
+<tr>
+<td>3</td>
+<td>5.6909s</td>
+<td>5.7629s</td>
+<td>0.988</td>
+<td>0.982</td>
+</tr>
+<tr>
+<td>4</td>
+<td>6.1859s</td>
+<td>5.7574s</td>
+<td>1.074</td>
+<td>1.047</td>
+</tr>
+<tr>
+<td>5</td>
+<td>6.6703s</td>
+<td>5.7098s</td>
+<td>1.168</td>
+<td>1.160</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5.8854s</td>
+<td>5.6585s</td>
+<td>1.040</td>
+<td>1.046</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>测试结果显示，整体优化并不明显，而矩阵乘法的速度提升更不明显，所以执行矩阵乘法时数据的深度与矩阵乘法的速度关系不是很大。（why？）</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://rzm0572.github.io">rzm</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-Report/">https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-Report/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://rzm0572.github.io" target="_blank">Calc - rzmID 的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HPC/">HPC</a></div><div class="post_share"><div class="social-share" data-image="/assets/basic/home-bg.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/Computer-Science/HPC/HPC101-Lab2-5-Report/" title="HPC101 Lab2.5 Report"><img class="cover" src="/assets/basic/home-bg.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">HPC101 Lab2.5 Report</div></div></a></div><div class="next-post pull-right"><a href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report"><img class="cover" src="/assets/basic/home-bg.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">HPC101 Lab1 Report</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report"><img class="cover" src="/assets/basic/home-bg.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-20</div><div class="title">HPC101 Lab1 Report</div></div></a></div><div><a href="/Computer-Science/HPC/HPC101-Lab2-5-Report/" title="HPC101 Lab2.5 Report"><img class="cover" src="/assets/basic/home-bg.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-20</div><div class="title">HPC101 Lab2.5 Report</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">rzm</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/rzm0572" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HPC101-Lab2-report"><span class="toc-number">1.</span> <span class="toc-text">HPC101 Lab2 report</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E7%9B%AE%E6%A0%87"><span class="toc-number">1.1.</span> <span class="toc-text">实验目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="toc-number">1.2.</span> <span class="toc-text">实现代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">1.3.</span> <span class="toc-text">思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%EF%BC%9A%E6%AD%A3%E7%A1%AE%E6%80%A7%E4%B8%8E%E5%8A%A0%E9%80%9F%E6%AF%94"><span class="toc-number">1.4.</span> <span class="toc-text">测试：正确性与加速比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B0%83%E4%BC%98"><span class="toc-number">1.5.</span> <span class="toc-text">调优</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/HPC/HPC101-Lab2-5-Report/" title="HPC101 Lab2.5 Report"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HPC101 Lab2.5 Report"/></a><div class="content"><a class="title" href="/Computer-Science/HPC/HPC101-Lab2-5-Report/" title="HPC101 Lab2.5 Report">HPC101 Lab2.5 Report</a><time datetime="2024-01-20T11:08:07.000Z" title="发表于 2024-01-20 19:08:07">2024-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/HPC/HPC101-Lab2-Report/" title="HPC101 Lab2 Report"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HPC101 Lab2 Report"/></a><div class="content"><a class="title" href="/Computer-Science/HPC/HPC101-Lab2-Report/" title="HPC101 Lab2 Report">HPC101 Lab2 Report</a><time datetime="2024-01-20T11:07:03.000Z" title="发表于 2024-01-20 19:07:03">2024-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HPC101 Lab1 Report"/></a><div class="content"><a class="title" href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report">HPC101 Lab1 Report</a><time datetime="2024-01-20T11:06:55.000Z" title="发表于 2024-01-20 19:06:55">2024-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/tools/Vigenere_cipher/" title="维吉尼亚密码加密解密工具"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="维吉尼亚密码加密解密工具"/></a><div class="content"><a class="title" href="/Computer-Science/tools/Vigenere_cipher/" title="维吉尼亚密码加密解密工具">维吉尼亚密码加密解密工具</a><time datetime="2024-01-20T10:41:40.000Z" title="发表于 2024-01-20 18:41:40">2024-01-20</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By rzm</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'FvN4GCqE2haPCD7WlNvmCEtH-gzGzoHsz',
+      appKey: 'BhzMvzUNljJUraIvac3ok1vX',
+      avatar: 'robohash',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>HPC101 Lab2.5 Report | Calc - rzmID 的博客</title><meta name="author" content="rzm"><meta name="copyright" content="rzm"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="手写 SIMD 向量化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HPC101 Lab2.5 Report">
+<meta property="og:url" content="https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-5-Report/index.html">
+<meta property="og:site_name" content="Calc - rzmID 的博客">
+<meta property="og:description" content="手写 SIMD 向量化">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://rzm0572.github.io/assets/basic/home-bg.jpg">
+<meta property="article:published_time" content="2024-01-20T11:08:07.000Z">
+<meta property="article:modified_time" content="2024-01-20T11:44:23.850Z">
+<meta property="article:author" content="rzm">
+<meta property="article:tag" content="HPC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://rzm0572.github.io/assets/basic/home-bg.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-5-Report/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"bottom-left"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'HPC101 Lab2.5 Report',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-01-20 19:44:23'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+document.addEventListener('pjax:send', () => {
+  Pace.restart()
+})
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于本站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/assets/basic/home-bg.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Calc - rzmID 的博客"><span class="site-name">Calc - rzmID 的博客</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于本站</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">HPC101 Lab2.5 Report</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-01-20T11:08:07.000Z" title="发表于 2024-01-20 19:08:07">2024-01-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-01-20T11:44:23.850Z" title="更新于 2024-01-20 19:44:23">2024-01-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Computer-Science/">Computer Science</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Computer-Science/HPC/">HPC</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="HPC101 Lab2.5 Report"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/Computer-Science/HPC/HPC101-Lab2-5-Report/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/Computer-Science/HPC/HPC101-Lab2-5-Report/" itemprop="commentCount"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="HPC101-Lab-2-5"><a href="#HPC101-Lab-2-5" class="headerlink" title="HPC101 Lab 2.5"></a>HPC101 Lab 2.5</h1><h2 id="1-code"><a href="#1-code" class="headerlink" title="1. code"></a>1. code</h2><ul>
+<li><p>environment: wsl2</p>
+</li>
+<li><p>source</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;smmintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;emmintrin.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;immintrin.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAXN 100000000</span></span><br><span class="line"></span><br><span class="line"><span class="type">float</span> a[MAXN];</span><br><span class="line"><span class="type">float</span> b[MAXN];</span><br><span class="line"><span class="type">float</span> c[MAXN];</span><br><span class="line"><span class="type">float</span> d[MAXN];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; MAXN; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        a[i] = <span class="number">1.0</span> / (<span class="built_in">rand</span>() + <span class="number">1</span>);</span><br><span class="line">        b[i] = <span class="number">1.0</span> / (<span class="built_in">rand</span>() + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">clock_t</span> start_std, end_std;</span><br><span class="line">    start_std = <span class="built_in">clock</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n = <span class="number">0</span>; n &lt; <span class="number">20</span>; ++n)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; MAXN; ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            d[i] += a[i] * b[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    end_std = <span class="built_in">clock</span>();</span><br><span class="line"></span><br><span class="line">    <span class="type">clock_t</span> start, end;</span><br><span class="line">    start = <span class="built_in">clock</span>();</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n = <span class="number">0</span>; n &lt; <span class="number">20</span>; ++n)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> top=<span class="number">0</span>,mxn=MAXN&gt;&gt;<span class="number">3</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;mxn;++i) &#123;</span><br><span class="line">            __m256 a256=_mm256_load_ps(a+top);</span><br><span class="line">            __m256 b256=_mm256_load_ps(b+top);</span><br><span class="line">            __m256 c256=_mm256_load_ps(c+top);</span><br><span class="line">            c256=_mm256_fmadd_ps(a256,b256,c256);</span><br><span class="line">            _mm256_store_ps(c+top,c256);</span><br><span class="line">            top+=<span class="number">8</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    end = <span class="built_in">clock</span>();</span><br><span class="line">    <span class="type">float</span> t=(<span class="type">double</span>)(end - start) / CLOCKS_PER_SEC;</span><br><span class="line">    <span class="type">float</span> t_std=(<span class="type">double</span>)(end_std-start_std)/CLOCKS_PER_SEC;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;time=%f\n&quot;</span>, t);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;std_time=%f\n&quot;</span>, t_std);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;speed up: %fx\n&quot;</span>,t_std/t);</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; MAXN; ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">fabs</span>(c[i] - d[i]) / d[i] &gt; <span class="number">0.0001</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Check Failed at %d\n&quot;</span>, i);</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Check Passed&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>compile</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc add.cpp -o add -mfma -mavx2</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="2-result"><a href="#2-result" class="headerlink" title="2. result"></a>2. result</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">time=2.037191</span><br><span class="line">std_time=4.855074</span><br><span class="line">speed up: 2.383220x</span><br><span class="line">Check Passed</span><br></pre></td></tr></table></figure>
+<p>I carried out several tests and got the following result:</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>acceleration ratio</th>
+<th>accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2.383x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2.311x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2.314x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>avg</td>
+<td>2.336x</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="3-idea"><a href="#3-idea" class="headerlink" title="3. idea"></a>3. idea</h2><p>use the data type <code>__m256</code> to process 8 single-precision floating number at a time.<br>(<code>__m256</code> has 32 byte to contain eight 4-byte <code>float</code>)</p>
+<p><code>top</code> :  the position of the foremost of unprocessed data</p>
+<ul>
+<li><p>Firstly, load the data from arrays <code>a</code> <code>b</code> <code>c</code>, using the function <code>_mm256_load_ps(const float *__P)</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">__m256 a256=_mm256_load_ps(a+top);</span><br><span class="line">__m256 b256=_mm256_load_ps(b+top);</span><br><span class="line">__m256 c256=_mm256_load_ps(c+top);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Then add <code>a256*b256</code> to <code>c256</code>, using the function <code>_mm256_fmadd_ps(__m256 __A, __m256 __B, __m256 __C)</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c256=_mm256_fmadd_ps(a256,b256,c256);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>In the end, update <code>c</code>, using the function <code>_mm256_store_ps(float *__P, __m256 __A)</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_mm256_store_ps(c+top,c256);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>update <code>top</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">top+=<span class="number">8</span>  <span class="comment">// 8 = 32/4</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="4-other-tests"><a href="#4-other-tests" class="headerlink" title="4. other tests"></a>4. other tests</h2><ul>
+<li><p>use <code>__m128</code> to replace <code>__m256</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> n = <span class="number">0</span>; n &lt; <span class="number">20</span>; ++n)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> top=<span class="number">0</span>,mxn=MAXN&gt;&gt;<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;mxn;++i) &#123;</span><br><span class="line">        __m128 a128=_mm_load_ps(a+top);</span><br><span class="line">        __m128 b128=_mm_load_ps(b+top);</span><br><span class="line">        __m128 c128=_mm_load_ps(c+top);</span><br><span class="line">        c128=_mm_fmadd_ps(a128,b128,c128);</span><br><span class="line">        _mm_store_ps(c+top,c128);</span><br><span class="line">        top+=<span class="number">4</span>;  <span class="comment">// 4=128/32</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>And got the result as follows:</p>
+</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>acceleration ratio</th>
+<th>accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1.369x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1.384x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1.313x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>avg</td>
+<td>1.355x</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>  From the result we find that the acceleration ratio of <code>__m256</code> is 1.72 times as that of <code>__m128</code>, that’s because CPU can handle 2 times of data in single instruction with <code>__m256</code>. </p>
+<ul>
+<li><p>use an array to reduce the times of type conversions<br>P.S This way we need add a global array, but it is against the rule. However it didn’t save <code>a[i]*b[i]</code> so it will keep the total calculation amount unchanged.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">__m256 c256[MAXN/<span class="number">8</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> n = <span class="number">0</span>; n &lt; <span class="number">20</span>; ++n)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> mxn=MAXN&gt;&gt;<span class="number">3</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;mxn;++i) &#123;</span><br><span class="line">            __m256 a256=_mm256_load_ps(a+(i&lt;&lt;<span class="number">3</span>));</span><br><span class="line">            __m256 b256=_mm256_load_ps(b+(i&lt;&lt;<span class="number">3</span>));</span><br><span class="line">            <span class="keyword">if</span> (!n) c256[i]=_mm256_mul_ps(a256,b256);</span><br><span class="line">            <span class="keyword">else</span> c256[i]=_mm256_fmadd_ps(a256,b256,c256[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (n==<span class="number">19</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;mxn;++i) &#123;</span><br><span class="line">                _mm256_store_ps(c+(i&lt;&lt;<span class="number">3</span>),c256[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>Got the result as follows:</p>
+</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>acceleration ratio</th>
+<th>accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2.873x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2.877x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2.888x</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>avg</td>
+<td>2.879x</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>  The acceleration ratio increases, but it also use more memory. When I want to set <code>a256[MAXN/8]</code> <code>b256[MAXN/8]</code>to further reduce the times of type conversions, an error occurs.<br>  <img src="image-20231110171903485.jpg" alt="image-20231110171903485"></p>
+<p>  Maybe it is caused by memory excess.</p>
+<h2 id="5-assembler"><a href="#5-assembler" class="headerlink" title="5. assembler"></a>5. assembler</h2><ul>
+<li><p>normal<br><img src="image-20231110172209948.jpg" alt="image-20231110172209948"></p>
+<p><img src="image-20231110172243316.jpg" alt="image-20231110172243316"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">movl    -336(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    d(%rip), %rax</span><br><span class="line">        vmovss  (%rdx,%rax), %xmm1</span><br><span class="line">        movl    -336(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    a(%rip), %rax</span><br><span class="line">        vmovss  (%rdx,%rax), %xmm2</span><br><span class="line">        movl    -336(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    b(%rip), %rax</span><br><span class="line">        vmovss  (%rdx,%rax), %xmm0</span><br><span class="line">        vmulss  %xmm0, %xmm2, %xmm0</span><br><span class="line">        vaddss  %xmm0, %xmm1, %xmm0</span><br><span class="line">        movl    -336(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    d(%rip), %rax</span><br><span class="line">        vmovss  %xmm0, (%rdx,%rax)</span><br><span class="line">        addl    $1, -336(%rbp)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>SIMD</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">movl    -328(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    a(%rip), %rax</span><br><span class="line">        addq    %rdx, %rax</span><br><span class="line">        movq    %rax, -248(%rbp)</span><br><span class="line">        movq    -248(%rbp), %rax</span><br><span class="line">        vmovaps (%rax), %ymm0</span><br><span class="line">        vmovaps %ymm0, -240(%rbp)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">movl    -328(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    b(%rip), %rax</span><br><span class="line">        addq    %rdx, %rax</span><br><span class="line">        movq    %rax, -256(%rbp)</span><br><span class="line">        movq    -256(%rbp), %rax</span><br><span class="line">        vmovaps (%rax), %ymm0</span><br><span class="line">        vmovaps %ymm0, -208(%rbp)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">movl    -328(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    c(%rip), %rax</span><br><span class="line">        addq    %rdx, %rax</span><br><span class="line">        movq    %rax, -264(%rbp)</span><br><span class="line">        movq    -264(%rbp), %rax</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">vmovaps (%rax), %ymm0</span><br><span class="line">        vmovaps %ymm0, -176(%rbp)</span><br><span class="line">        vmovaps -240(%rbp), %ymm0</span><br><span class="line">        vmovaps %ymm0, -112(%rbp)</span><br><span class="line">        vmovaps -208(%rbp), %ymm0</span><br><span class="line">        vmovaps %ymm0, -80(%rbp)</span><br><span class="line">        vmovaps -176(%rbp), %ymm0</span><br><span class="line">        vmovaps %ymm0, -48(%rbp)</span><br><span class="line">        vmovaps -80(%rbp), %ymm1</span><br><span class="line">        vmovaps -48(%rbp), %ymm0</span><br><span class="line">        vfmadd231ps     -112(%rbp), %ymm1, %ymm0</span><br><span class="line">        nop</span><br><span class="line">        vmovaps %ymm0, -176(%rbp)</span><br><span class="line">        movl    -328(%rbp), %eax</span><br><span class="line">        cltq</span><br><span class="line">        leaq    0(,%rax,4), %rdx</span><br><span class="line">        leaq    c(%rip), %rax</span><br><span class="line">        addq    %rdx, %rax</span><br><span class="line">        movq    %rax, -272(%rbp)</span><br><span class="line">        vmovaps -176(%rbp), %ymm0</span><br><span class="line">        vmovaps %ymm0, -144(%rbp)</span><br><span class="line">        movq    -272(%rbp), %rax</span><br><span class="line">        vmovaps -144(%rbp), %ymm0</span><br><span class="line">        vmovaps %ymm0, (%rax)</span><br><span class="line">        nop</span><br><span class="line">        addl    $8, -328(%rbp)</span><br><span class="line">        addl    $1, -324(%rbp)</span><br></pre></td></tr></table></figure>
+<p>But I can’t understand the assembly code…</p>
+</li>
+</ul>
+<h2 id="6-note"><a href="#6-note" class="headerlink" title="6. note"></a>6. note</h2><h4 id="data-type"><a href="#data-type" class="headerlink" title="data type"></a>data type</h4><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>element</th>
+<th>size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__m128</code></td>
+<td>4*<code>float</code></td>
+<td>4*32 bit</td>
+</tr>
+<tr>
+<td><code>__m128d</code></td>
+<td>2*<code>double</code></td>
+<td>2*64 bit</td>
+</tr>
+<tr>
+<td><code>__m128i</code></td>
+<td>various type of integer</td>
+<td>128 bit</td>
+</tr>
+<tr>
+<td><code>__m256</code></td>
+<td>8*<code>float</code></td>
+<td>8*32 bit</td>
+</tr>
+<tr>
+<td><code>__m256d</code></td>
+<td>4*<code>double</code></td>
+<td>4*64 bit</td>
+</tr>
+<tr>
+<td><code>__m256i</code></td>
+<td>various type of integer</td>
+<td>256 bit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>int</code>,<code>short</code>,<code>char</code>,<code>long long</code> and other integer-like type can be loaded into <code>__m128i</code> and <code>__m256i</code>.</p>
+<h4 id="functions"><a href="#functions" class="headerlink" title="functions"></a>functions</h4><p><code>_mm&lt;bit_width&gt;_&lt;name&gt;_&lt;data_type&gt;</code></p>
+<ul>
+<li><code>&lt;bit_width&gt;</code> is the size of value this function returns. (like 256 and 512)<br>if it is empty, it means the size of value is 128 bit</li>
+<li><code>&lt;name&gt;</code> indicates the function’s function.<ul>
+<li><code>&lt;abs&gt;</code>, <code>&lt;add&gt;</code>, <code>&lt;and&gt;</code>, <code>&lt;andnot&gt;</code>,<code>&lt;avg&gt;</code>, <code>&lt;sub&gt;</code>, <code>&lt;mul&gt;</code>, <code>&lt;or&gt;</code>, <code>&lt;max&gt;</code>, <code>&lt;min&gt;</code>, <code>&lt;xor&gt;</code> :  obviously indicates its function</li>
+<li><code>&lt;fmadd&gt;</code>, <code>&lt;fmsub&gt;</code> :  take 3 parameters <code>a</code>, <code>b</code>, <code>c</code>, and return <code>a*b+c</code> or <code>a*b-c</code></li>
+<li><code>&lt;fnmadd&gt;</code>, <code>&lt;fnmsub&gt;</code> :  take 3 parameters <code>a</code>, <code>b</code>, <code>c</code>, and return <code>-a*b+c</code> or <code>-a*b-c</code></li>
+<li><code>&lt;broadcast&gt;</code> :  take 1 parameters <code>a</code>, broadcast the data from <code>a</code> to all elements of returned value.</li>
+<li><code>&lt;cmpeq&gt;</code>: Compare packed data in <code>a</code> and <code>b</code> for equality, and return the result. (all 1=equal, all 0=unequal)</li>
+<li><code>&lt;cmpgt&gt;</code> :  Compare packed data in <code>a</code> and <code>b</code>, and return the greater one.</li>
+<li>…</li>
+</ul>
+</li>
+<li><code>&lt;data_type&gt;</code> tells the function what type of input data it should be treated as.<ul>
+<li><code>pd</code> :  double</li>
+<li><code>ps</code> :  float</li>
+<li><code>ph</code> :  half-precision floating-point</li>
+<li><code>epi&lt;x&gt;</code> :  signed x-bit integer</li>
+<li><code>epu&lt;x&gt;</code> :  unsigned x-bit integer</li>
+<li><code>si&lt;x&gt;</code> :  a pack of x bits integer number</li>
+<li>…</li>
+</ul>
+</li>
+</ul>
+<p>reference:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html">https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.officedaytime.com/simd512e/">https://www.officedaytime.com/simd512e/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX">https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/94649418">https://zhuanlan.zhihu.com/p/94649418</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://rzm0572.github.io">rzm</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-5-Report/">https://rzm0572.github.io/Computer-Science/HPC/HPC101-Lab2-5-Report/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://rzm0572.github.io" target="_blank">Calc - rzmID 的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/HPC/">HPC</a></div><div class="post_share"><div class="social-share" data-image="/assets/basic/home-bg.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/Computer-Science/HPC/HPC101-Lab2-Report/" title="HPC101 Lab2 Report"><img class="cover" src="/assets/basic/home-bg.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">HPC101 Lab2 Report</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report"><img class="cover" src="/assets/basic/home-bg.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-20</div><div class="title">HPC101 Lab1 Report</div></div></a></div><div><a href="/Computer-Science/HPC/HPC101-Lab2-Report/" title="HPC101 Lab2 Report"><img class="cover" src="/assets/basic/home-bg.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-01-20</div><div class="title">HPC101 Lab2 Report</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">rzm</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/rzm0572" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#HPC101-Lab-2-5"><span class="toc-number">1.</span> <span class="toc-text">HPC101 Lab 2.5</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-code"><span class="toc-number">1.1.</span> <span class="toc-text">1. code</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-result"><span class="toc-number">1.2.</span> <span class="toc-text">2. result</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-idea"><span class="toc-number">1.3.</span> <span class="toc-text">3. idea</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-other-tests"><span class="toc-number">1.4.</span> <span class="toc-text">4. other tests</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-assembler"><span class="toc-number">1.5.</span> <span class="toc-text">5. assembler</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-note"><span class="toc-number">1.6.</span> <span class="toc-text">6. note</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#data-type"><span class="toc-number">1.6.0.1.</span> <span class="toc-text">data type</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#functions"><span class="toc-number">1.6.0.2.</span> <span class="toc-text">functions</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/HPC/HPC101-Lab2-5-Report/" title="HPC101 Lab2.5 Report"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HPC101 Lab2.5 Report"/></a><div class="content"><a class="title" href="/Computer-Science/HPC/HPC101-Lab2-5-Report/" title="HPC101 Lab2.5 Report">HPC101 Lab2.5 Report</a><time datetime="2024-01-20T11:08:07.000Z" title="发表于 2024-01-20 19:08:07">2024-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/HPC/HPC101-Lab2-Report/" title="HPC101 Lab2 Report"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HPC101 Lab2 Report"/></a><div class="content"><a class="title" href="/Computer-Science/HPC/HPC101-Lab2-Report/" title="HPC101 Lab2 Report">HPC101 Lab2 Report</a><time datetime="2024-01-20T11:07:03.000Z" title="发表于 2024-01-20 19:07:03">2024-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="HPC101 Lab1 Report"/></a><div class="content"><a class="title" href="/Computer-Science/HPC/HPC101-Lab1-Report/" title="HPC101 Lab1 Report">HPC101 Lab1 Report</a><time datetime="2024-01-20T11:06:55.000Z" title="发表于 2024-01-20 19:06:55">2024-01-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/Computer-Science/tools/Vigenere_cipher/" title="维吉尼亚密码加密解密工具"><img src="/assets/basic/home-bg.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="维吉尼亚密码加密解密工具"/></a><div class="content"><a class="title" href="/Computer-Science/tools/Vigenere_cipher/" title="维吉尼亚密码加密解密工具">维吉尼亚密码加密解密工具</a><time datetime="2024-01-20T10:41:40.000Z" title="发表于 2024-01-20 18:41:40">2024-01-20</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By rzm</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.1
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, '']
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typesetPromise()
+}</script><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'FvN4GCqE2haPCD7WlNvmCEtH-gzGzoHsz',
+      appKey: 'BhzMvzUNljJUraIvac3ok1vX',
+      avatar: 'robohash',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="true" data-click="false"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
